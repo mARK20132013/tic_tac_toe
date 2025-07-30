@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Крестики-Нолики PRO</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #4a4a4a;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .mode-btn {
+            background: linear-gradient(135deg, #48dbfb 0%, #0abde3 100%);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            font-size: 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-weight: bold;
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5253 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(255, 107, 107, 0.3);
+        }
+
+        .difficulty-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .difficulty-btn {
+            background: linear-gradient(135deg, #a4b0be 0%, #747d8c 100%);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-weight: bold;
+        }
+
+        .difficulty-btn.active {
+            background: linear-gradient(135deg, #2ed573 0%, #1dd1a1 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(46, 213, 115, 0.3);
+        }
+
+        .players-container {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .player-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 150px;
+            margin: 10px;
+        }
+
+        .player {
+            position: relative;
+            width: 100px;
+            height: 150px;
+            margin-bottom: 10px;
+            transition: all 0.5s ease;
+        }
+
+        .player-avatar {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .crown {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .trash-can {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .player-name {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .player-name:hover {
+            background: rgba(0,0,0,0.1);
+        }
+
+        .player-score {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .game-board-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .game-board {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            padding: 20px;
+            text-align: center;
+            overflow: auto;
+            max-width: 100%;
+        }
+
+        .status {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #4a4a4a;
+            height: 24px;
+            text-align: center;
+        }
+
+        .board {
+            display: grid;
+            grid-gap: 5px;
+            margin: 0 auto;
+        }
+
+        .board-5x5 {
+            grid-template-columns: repeat(5, 60px);
+        }
+
+        .board-10x10 {
+            grid-template-columns: repeat(10, 40px);
+        }
+
+        .cell {
+            width: 60px;
+            height: 60px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .cell-10x10 {
+            width: 40px;
+            height: 40px;
+            font-size: 1.5rem;
+        }
+
+        .cell:hover {
+            background-color: #e0e0e0;
+            transform: translateY(-2px);
+        }
+
+        .cell.x {
+            color: #ff6b6b;
+        }
+
+        .cell.o {
+            color: #48dbfb;
+        }
+
+        .cell.bomb {
+            background-color: #ff6b6b;
+            color: white;
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            font-size: 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3);
+            font-weight: bold;
+            outline: none;
+            margin-top: 20px;
+        }
+
+        .reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .reset-btn:active {
+            transform: translateY(0);
+        }
+
+        .winning-cell {
+            background-color: #e8f5e9;
+            animation: pulse 1s infinite;
+        }
+
+        .sound-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #4a4a4a;
+            z-index: 100;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes laugh {
+            0%, 100% { transform: translateY(0); }
+            25% { transform: translateY(-5px) rotate(5deg); }
+            75% { transform: translateY(-5px) rotate(-5deg); }
+        }
+
+        @keyframes cry {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(3px); }
+        }
+
+        @keyframes explode {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(3); opacity: 0; }
+        }
+
+        .bomb-explosion {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background-color: #ff6b6b;
+            border-radius: 50%;
+            animation: explode 0.5s forwards;
+            pointer-events: none;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <button class="sound-toggle" id="soundToggle">🔊</button>
+    <div class="game-container">
+        <h1>Крестики-Нолики PRO</h1>
+        
+        <div class="mode-selector">
+            <button class="mode-btn active" data-mode="classic">Классика (5x5)</button>
+            <button class="mode-btn" data-mode="extreme">Экстремал (10x10)</button>
+        </div>
+        
+        <div class="difficulty-selector" id="difficultySelector">
+            <button class="difficulty-btn active" data-difficulty="easy">Легкий</button>
+            <button class="difficulty-btn" data-difficulty="hard">Сложный</button>
+            <button class="difficulty-btn" data-difficulty="impossible">Невозможный</button>
+        </div>
+        
+        <div class="players-container" id="playersContainer">
+            <div class="player-container">
+                <div class="player" id="playerHuman">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTUwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjQwIiByPSIyMCIgZmlsbD0iI2ZmNmI2YiIvPjxjaXJjbGUgY3g9IjUwIiBjeT0iNDAiIHI9IjEwIiBmaWxsPSIjZmZmZmZmIi8+PHBhdGggZD0iTTQwIDQ1IHEwIDUgMTAgNSAxMCAwIDEwIC01IiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik0zNSA1NSBxLTEwIDAgLTEwIDEwIGwwIDQwIHEwIDEwIDEwIDEwIGwzMCAwIHEwIDAgMzAgMCBxMTAgMCAxMCAtMTAgbDAgLTQwIHEwIC0xMCAtMTAgLTEwIiBmaWxsPSIjZmY2YjZiIi8+PHBhdGggZD0iTTQwIDExNSBsMCAxNSBxMCA1IDUgNSBsMTAgMCBxNSAwIDUgLTUgbDAgLTE1IiBmaWxsPSIjZmY2YjZiIi8+PGNpcmNsZSBjeD0iMzUiIGN5PSI3MCIgcj0iNSIgZmlsbD0iIzAwMCIvPjxjaXJjbGUgY3g9IjY1IiBjeT0iNzAiIHI9IjUiIGZpbGw9IiMwMDAiLz48L3N2Zz4=" class="player-avatar" id="humanAvatar">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MCA0MCI+PHBhdGggZD0iTTUgMTAgTDEwIDUgTDUwIDUgTDU1IDEwIEw1NSAzMCBMNTAgMzUgTDEwIDM1IEw1IDMwIFoiIGZpbGw9IiNmZmNiMDQiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIyIi8+PHBhdGggZD0iTTE1IDEwIEwyMCA1IEw0MCA1IEw0NSAxMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSIzMCIgY3k9IjE1IiByPSI1IiBmaWxsPSIjZmYwIi8+PC9zdmc+" class="crown" id="humanCrown">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA2MCI+PHBhdGggZD0iTTEwIDAgTDcwIDAgTDgwIDEwIEw4MCA0MCBMNzAgNTAgTDEwIDUwIEwwIDQwIEwwIDEwIFoiIGZpbGw9IiNjY2MiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIyIi8+PHBhdGggZD0iTTIwIDEwIEw2MCAxMCBMNjAgMzAgTDYwIDQwIEwyMCA0MCBMMjAgMzAgWiIgZmlsbD0iI2VlZSIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjEiLz48Y2lyY2xlIGN4PSI0MCIgY3k9IjIwIiByPSI1IiBmaWxsPSIjOTk5Ii8+PC9zdmc+" class="trash-can" id="humanTrash">
+                </div>
+                <div class="player-name" id="playerName">Игрок</div>
+                <div class="player-score" id="humanScore">0</div>
+            </div>
+            
+            <div class="player-container">
+                <div class="player" id="playerComputer1">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTUwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjQwIiByPSIyMCIgZmlsbD0iIzQ4ZGJmYiIvPjxjaXJjbGUgY3g9IjUwIiBjeT0iNDAiIHI9IjEwIiBmaWxsPSIjZmZmZmZmIi8+PHBhdGggZD0iTTQwIDQ1IHEwIDUgMTAgNSAxMCAwIDEwIC01IiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik0zNSA1NSBxLTEwIDAgLTEwIDEwIGwwIDQwIHEwIDEwIDEwIDEwIGwzMCAwIHEwIDAgMzAgMCBxMTAgMCAxMCAtMTAgbDAgLTQwIHEwIC0xMCAtMTAgLTEwIiBmaWxsPSIjNDhkYmZiIi8+PHBhdGggZD0iTTQwIDExNSBsMCAxNSBxMCA1IDUgNSBsMTAgMCBxNSAwIDUgLTUgbDAgLTE1IiBmaWxsPSIjNDhkYmZiIi8+PHJlY3QgeD0iMzUiIHk9IjY1IiB3aWR0aD0iMTAiIGhlaWdodD0iMTAiIHJ4PSIyIiByeT0iMiIgZmlsbD0iIzAwMCIvPjxyZWN0IHg9IjU1IiB5PSI2NSIgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIiByeD0iMiIgcnk9IjIiIGZpbGw9IiMwMDAiLz48L3N2Zz4=" class="player-avatar" id="computer1Avatar">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MCA0MCI+PHBhdGggZD0iTTUgMTAgTDEwIDUgTDUwIDUgTDU1IDEwIEw1NSAzMCBMNTAgMzUgTDEwIDM1IEw1IDMwIFoiIGZpbGw9IiNmZmNiMDQiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIyIi8+PHBhdGggZD0iTTE1IDEwIEwyMCA1IEw0MCA1IEw0NSAxMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSIzMCIgY3k9IjE1IiByPSI1IiBmaWxsPSIjZmYwIi8+PC9zdmc+" class="crown" id="computer1Crown">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA2MCI+PHBhdGggZD0iTTEwIDAgTDcwIDAgTDgwIDEwIEw4MCA0MCBMNzAgNTAgTDEwIDUwIEwwIDQwIEwwIDEwIFoiIGZpbGw9IiNjY2MiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIyIi8+PHBhdGggZD0iTTIwIDEwIEw2MCAxMCBMNjAgMzAgTDYwIDQwIEwyMCA0MCBMMjAgMzAgWiIgZmlsbD0iI2VlZSIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjEiLz48Y2lyY2xlIGN4PSI0MCIgY3k9IjIwIiByPSI1IiBmaWxsPSIjOTk5Ii8+PC9zdmc+" class="trash-can" id="computer1Trash">
+                </div>
+                <div class="player-name">Компьютер 1</div>
+                <div class="player-score" id="computer1Score">0</div>
+            </div>
+            
+            <div class="player-container hidden" id="computer2Container">
+                <div class="player" id="playerComputer2">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTUwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjQwIiByPSIyMCIgZmlsbD0iIzFkZDk5NyIvPjxjaXJjbGUgY3g9IjUwIiBjeT0iNDAiIHI9IjEwIiBmaWxsPSIjZmZmZmZmIi8+PHBhdGggZD0iTTQwIDQ1IHEwIDUgMTAgNSAxMCAwIDEwIC01IiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik0zNSA1NSBxLTEwIDAgLTEwIDEwIGwwIDQwIHEwIDEwIDEwIDEwIGwzMCAwIHEwIDAgMzAgMCBxMTAgMCAxMCAtMTAgbDAgLTQwIHEwIC0xMCAtMTAgLTEwIiBmaWxsPSIjMWRkOTk3Ii8+PHBhdGggZD0iTTQwIDExNSBsMCAxNSBxMCA1IDUgNSBsMTAgMCBxNSAwIDUgLTUgbDAgLTE1IiBmaWxsPSIjMWRkOTk3Ii8+PHBhdGggZD0iTTM1IDY1IHEwIDUgMTAgNSAxMCAwIDEwIC01IiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik01NSA2NSBxMCA1IDEwIDUgMTAgMCAxMCAtNSIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiLz48L3N2Zz4=" class="player-avatar" id="computer2Avatar">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MCA0MCI+PHBhdGggZD0iTTUgMTAgTDEwIDUgTDUwIDUgTDU1IDEwIEw1NSAzMCBMNTAgMzUgTDEwIDM1IEw1IDMwIFoiIGZpbGw9IiNmZmNiMDQiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIyIi8+PHBhdGggZD0iTTE1IDEwIEwyMCA1IEw0MCA1IEw0NSAxMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSIzMCIgY3k9IjE1IiByPSI1IiBmaWxsPSIjZmYwIi8+PC9zdmc+" class="crown" id="computer2Crown">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA2MCI+PHBhdGggZD0iTTEwIDAgTDcwIDAgTDgwIDEwIEw4MCA0MCBMNzAgNTAgTDEwIDUwIEwwIDQwIEwwIDEwIFoiIGZpbGw9IiNjY2MiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIyIi8+PHBhdGggZD0iTTIwIDEwIEw2MCAxMCBMNjAgMzAgTDYwIDQwIEwyMCA0MCBMMjAgMzAgWiIgZmlsbD0iI2VlZSIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjEiLz48Y2lyY2xlIGN4PSI0MCIgY3k9IjIwIiByPSI1IiBmaWxsPSIjOTk5Ii8+PC9zdmc+" class="trash-can" id="computer2Trash">
+                </div>
+                <div class="player-name">Компьютер 2</div>
+                <div class="player-score" id="computer2Score">0</div>
+            </div>
+        </div>
+        
+        <div class="game-board-container">
+            <div class="game-board">
+                <div class="status" id="status">Ваш ход (X)</div>
+                <div class="board board-5x5" id="board">
+                    <!-- Ячейки будут созданы динамически -->
+                </div>
+                <button class="reset-btn" id="resetBtn">Новая игра</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Скрытые аудио элементы -->
+    <audio id="clickSound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3" preload="auto"></audio>
+    <audio id="winSound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" preload="auto"></audio>
+    <audio id="loseSound" src="https://assets.mixkit.co/sfx/preview/mixkit-retro-arcade-lose-2027.mp3" preload="auto"></audio>
+    <audio id="drawSound" src="https://assets.mixkit.co/sfx/preview/mixkit-neutral-game-notification-951.mp3" preload="auto"></audio>
+    <audio id="laughSound" src="https://assets.mixkit.co/sfx/preview/mixkit-funny-game-laugh-2878.mp3" preload="auto"></audio>
+    <audio id="crySound" src="https://assets.mixkit.co/sfx/preview/mixkit-child-crying-465.mp3" preload="auto"></audio>
+    <audio id="bombSound" src="https://assets.mixkit.co/sfx/preview/mixkit-explosion-impact-1684.mp3" preload="auto"></audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Элементы интерфейса
+            const boardElement = document.getElementById('board');
+            const statusElement = document.getElementById('status');
+            const resetBtn = document.getElementById('resetBtn');
+            const soundToggle = document.getElementById('soundToggle');
+            const playerNameElement = document.getElementById('playerName');
+            const modeButtons = document.querySelectorAll('.mode-btn');
+            const difficultyButtons = document.querySelectorAll('.difficulty-btn');
+            const computer2Container = document.getElementById('computer2Container');
+            
+            // Счетчики
+            const humanScoreElement = document.getElementById('humanScore');
+            const computer1ScoreElement = document.getElementById('computer1Score');
+            const computer2ScoreElement = document.getElementById('computer2Score');
+            
+            // Аватары и элементы
+            const humanCrown = document.getElementById('humanCrown');
+            const computer1Crown = document.getElementById('computer1Crown');
+            const computer2Crown = document.getElementById('computer2Crown');
+            const humanTrash = document.getElementById('humanTrash');
+            const computer1Trash = document.getElementById('computer1Trash');
+            const computer2Trash = document.getElementById('computer2Trash');
+            const humanAvatar = document.getElementById('humanAvatar');
+            const computer1Avatar = document.getElementById('computer1Avatar');
+            const computer2Avatar = document.getElementById('computer2Avatar');
+            
+            // Аудио элементы
+            const clickSound = document.getElementById('clickSound');
+            const winSound = document.getElementById('winSound');
+            const loseSound = document.getElementById('loseSound');
+            const drawSound = document.getElementById('drawSound');
+            const laughSound = document.getElementById('laughSound');
+            const crySound = document.getElementById('crySound');
+            const bombSound = document.getElementById('bombSound');
+            
+            // Состояние игры
+            let gameActive = true;
+            let currentPlayer = 'X';
+            let gameState = [];
+            let cells = [];
+            let soundEnabled = true;
+            let humanScore = 0;
+            let computer1Score = 0;
+            let computer2Score = 0;
+            let playerName = 'Игрок';
+            let gameMode = 'classic'; // 'classic' или 'extreme'
+            let difficulty = 'easy'; // 'easy', 'hard', 'impossible'
+            let bombIndex = -1;
+            let boardSize = 5;
+            let winLength = 5;
+            
+            // Инициализация игры
+            function initGame() {
+                // Очищаем доску
+                boardElement.innerHTML = '';
+                
+                // Устанавливаем размеры в зависимости от режима
+                if (gameMode === 'classic') {
+                    boardSize = 5;
+                    winLength = 5;
+                    boardElement.className = 'board board-5x5';
+                } else {
+                    boardSize = 10;
+                    winLength = 10;
+                    boardElement.className = 'board board-10x10';
+                }
+                
+                // Создаем ячейки
+                gameState = Array(boardSize * boardSize).fill('');
+                cells = [];
+                
+                for (let i = 0; i < boardSize * boardSize; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = `cell ${gameMode === 'extreme' ? 'cell-10x10' : ''}`;
+                    cell.setAttribute('data-index', i);
+                    cell.addEventListener('click', () => handleCellClick(i));
+                    boardElement.appendChild(cell);
+                    cells.push(cell);
+                }
+                
+                // Устанавливаем бомбу
+                placeBomb();
+                
+                // Сбрасываем состояние игры
+                gameActive = true;
+                currentPlayer = 'X';
+                
+                // Обновляем статус
+                updateStatus();
+                
+                // Сбрасываем визуальные эффекты
+                resetVisualEffects();
+                
+                // Если режим "экстремал" и текущий игрок - компьютер, делаем ход
+                if (gameMode === 'extreme' && currentPlayer !== 'X') {
+                    setTimeout(computerMove, 500);
+                }
+            }
+            
+            // Размещаем бомбу на случайной пустой клетке
+            function placeBomb() {
+                // Удаляем старую бомбу, если есть
+                if (bombIndex !== -1 && bombIndex < gameState.length) {
+                    cells[bombIndex].classList.remove('bomb');
+                }
+                
+                // Находим все пустые клетки
+                const emptyCells = gameState.map((cell, index) => cell === '' ? index : -1).filter(i => i !== -1);
+                
+                // Если есть пустые клетки, выбираем случайную для бомбы
+                if (emptyCells.length > 0) {
+                    bombIndex = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                    // Не показываем бомбу игроку, только отмечаем в CSS
+                } else {
+                    bombIndex = -1;
+                }
+            }
+            
+            // Обработчик клика по ячейке
+            function handleCellClick(index) {
+                if (!gameActive || gameState[index] !== '' || (currentPlayer !== 'X' && gameMode === 'classic')) return;
+                
+                // Проверяем, не бомба ли это
+                if (index === bombIndex) {
+                    handleBombExplosion(index);
+                    return;
+                }
+                
+                makeMove(index, currentPlayer);
+                playSound(clickSound);
+                checkResult();
+                
+                if (gameActive && currentPlayer !== 'X' && gameMode === 'classic') {
+                    setTimeout(computerMove, 500);
+                } else if (gameActive && gameMode === 'extreme') {
+                    setTimeout(nextPlayerMove, 500);
+                }
+            }
+            
+            // Взрыв бомбы
+            function handleBombExplosion(index) {
+                gameActive = false;
+                
+                // Показываем бомбу
+                cells[index].classList.add('bomb');
+                cells[index].textContent = '💣';
+                
+                // Анимация взрыва
+                const explosion = document.createElement('div');
+                explosion.className = 'bomb-explosion';
+                cells[index].appendChild(explosion);
+                
+                // Звук взрыва
+                playSound(bombSound);
+                
+                // Определяем, кто проиграл
+                if (currentPlayer === 'X') {
+                    statusElement.textContent = `${playerName} наступил(а) на бомбу!`;
+                    computer1Score++;
+                    computer1ScoreElement.textContent = computer1Score;
+                    computer1Crown.style.opacity = '1';
+                    humanTrash.style.opacity = '1';
+                    computer1Avatar.style.animation = 'laugh 0.5s infinite';
+                    humanAvatar.style.animation = 'cry 0.5s infinite';
+                    playSound(laughSound);
+                    playSound(crySound);
+                } else if (currentPlayer === 'O') {
+                    statusElement.textContent = 'Компьютер 1 наступил на бомбу!';
+                    if (gameMode === 'extreme') {
+                        computer2Score++;
+                        computer2ScoreElement.textContent = computer2Score;
+                        computer2Crown.style.opacity = '1';
+                        computer1Trash.style.opacity = '1';
+                        computer2Avatar.style.animation = 'laugh 0.5s infinite';
+                        computer1Avatar.style.animation = 'cry 0.5s infinite';
+                    } else {
+                        humanScore++;
+                        humanScoreElement.textContent = humanScore;
+                        humanCrown.style.opacity = '1';
+                        computer1Trash.style.opacity = '1';
+                        humanAvatar.style.animation = 'laugh 0.5s infinite';
+                        computer1Avatar.style.animation = 'cry 0.5s infinite';
+                    }
+                    playSound(laughSound);
+                    playSound(crySound);
+                } else if (currentPlayer === 'Z') {
+                    statusElement.textContent = 'Компьютер 2 наступил на бомбу!';
+                    humanScore++;
+                    humanScoreElement.textContent = humanScore;
+                    humanCrown.style.opacity = '1';
+                    computer2Trash.style.opacity = '1';
+                    humanAvatar.style.animation = 'laugh 0.5s infinite';
+                    computer2Avatar.style.animation = 'cry 0.5s infinite';
+                    playSound(laughSound);
+                    playSound(crySound);
+                }
+                
+                // Удаляем анимацию через 1 секунду
+                setTimeout(() => {
+                    explosion.remove();
+                }, 1000);
+            }
+            
+            // Сделать ход
+            function makeMove(index, player) {
+                gameState[index] = player;
+                cells[index].textContent = player;
+                cells[index].classList.add(player.toLowerCase());
+                
+                // Если бомба была на этой клетке, перемещаем её
+                if (index === bombIndex) {
+                    placeBomb();
+                }
+            }
+            
+            // Проверить результат игры
+            function checkResult() {
+                // Проверяем победу
+                const winner = checkWin();
+                if (winner) {
+                    handleWin(winner);
+                    return;
+                }
+                
+                // Проверяем ничью
+                if (!gameState.includes('')) {
+                    handleDraw();
+                    return;
+                }
+                
+                // Переключаем игрока
+                if (gameMode === 'classic') {
+                    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                }
+                
+                updateStatus();
+            }
+            
+            // Проверить, есть ли победитель
+            function checkWin() {
+                // Проверяем все возможные линии
+                for (let i = 0; i < gameState.length; i++) {
+                    if (gameState[i] === '') continue;
+                    
+                    // Проверяем горизонтали, вертикали и диагонали
+                    if (checkLine(i, 1, 0) || // горизонталь
+                        checkLine(i, 0, 1) || // вертикаль
+                        checkLine(i, 1, 1) || // диагональ \
+                        checkLine(i, 1, -1)) { // диагональ /
+                        return gameState[i];
+                    }
+                }
+                
+                return null;
+            }
+            
+            // Проверить линию от заданной точки
+            function checkLine(startIndex, dx, dy) {
+                const player = gameState[startIndex];
+                if (player === '') return false;
+                
+                const x = startIndex % boardSize;
+                const y = Math.floor(startIndex / boardSize);
+                let count = 1;
+                
+                // Проверяем в одну сторону
+                for (let i = 1; i < winLength; i++) {
+                    const nx = x + dx * i;
+                    const ny = y + dy * i;
+                    
+                    if (nx < 0 || nx >= boardSize || ny < 0 || ny >= boardSize) break;
+                    
+                    const index = ny * boardSize + nx;
+                    if (gameState[index] !== player) break;
+                    
+                    count++;
+                }
+                
+                // Проверяем в другую сторону
+                for (let i = 1; i < winLength; i++) {
+                    const nx = x - dx * i;
+                    const ny = y - dy * i;
+                    
+                    if (nx < 0 || nx >= boardSize || ny < 0 || ny >= boardSize) break;
+                    
+                    const index = ny * boardSize + nx;
+                    if (gameState[index] !== player) break;
+                    
+                    count++;
+                }
+                
+                return count >= winLength;
+            }
+            
+            // Обработка победы
+            function handleWin(winner) {
+                gameActive = false;
+                
+                // Определяем победителя
+                if (winner === 'X') {
+                    statusElement.textContent = `${playerName} победил(а) (X)!`;
+                    playSound(winSound);
+                    playSound(laughSound);
+                    humanScore++;
+                    humanScoreElement.textContent = humanScore;
+                    humanCrown.style.opacity = '1';
+                    
+                    if (gameMode === 'classic') {
+                        computer1Trash.style.opacity = '1';
+                        computer1Avatar.style.animation = 'cry 0.5s infinite';
+                    } else {
+                        computer1Trash.style.opacity = '1';
+                        computer2Trash.style.opacity = '1';
+                        computer1Avatar.style.animation = 'cry 0.5s infinite';
+                        computer2Avatar.style.animation = 'cry 0.5s infinite';
+                    }
+                    
+                    humanAvatar.style.animation = 'laugh 0.5s infinite';
+                } else if (winner === 'O') {
+                    statusElement.textContent = 'Компьютер 1 победил (O)!';
+                    playSound(loseSound);
+                    playSound(crySound);
+                    computer1Score++;
+                    computer1ScoreElement.textContent = computer1Score;
+                    computer1Crown.style.opacity = '1';
+                    
+                    if (gameMode === 'classic') {
+                        humanTrash.style.opacity = '1';
+                        humanAvatar.style.animation = 'cry 0.5s infinite';
+                    } else {
+                        humanTrash.style.opacity = '1';
+                        computer2Trash.style.opacity = '1';
+                        humanAvatar.style.animation = 'cry 0.5s infinite';
+                        computer2Avatar.style.animation = 'cry 0.5s infinite';
+                    }
+                    
+                    computer1Avatar.style.animation = 'laugh 0.5s infinite';
+                } else if (winner === 'Z') {
+                    statusElement.textContent = 'Компьютер 2 победил (Z)!';
+                    playSound(loseSound);
+                    playSound(crySound);
+                    computer2Score++;
+                    computer2ScoreElement.textContent = computer2Score;
+                    computer2Crown.style.opacity = '1';
+                    humanTrash.style.opacity = '1';
+                    computer1Trash.style.opacity = '1';
+                    computer2Avatar.style.animation = 'laugh 0.5s infinite';
+                    humanAvatar.style.animation = 'cry 0.5s infinite';
+                    computer1Avatar.style.animation = 'cry 0.5s infinite';
+                }
+            }
+            
+            // Обработка ничьей
+            function handleDraw() {
+                gameActive = false;
+                statusElement.textContent = 'Ничья!';
+                playSound(drawSound);
+            }
+            
+            // Ход компьютера (классический режим)
+            function computerMove() {
+                if (!gameActive || currentPlayer !== 'O') return;
+                
+                let moveIndex = -1;
+                
+                // Логика в зависимости от сложности
+                if (difficulty === 'easy') {
+                    moveIndex = findRandomMove();
+                } else if (difficulty === 'hard') {
+                    // 50% на умный ход, 50% на случайный
+                    if (Math.random() < 0.5) {
+                        moveIndex = findSmartMove('O');
+                    } else {
+                        moveIndex = findRandomMove();
+                    }
+                } else { // impossible
+                    // 80% на умный ход, 20% на случайный
+                    if (Math.random() < 0.8) {
+                        moveIndex = findSmartMove('O');
+                    } else {
+                        moveIndex = findRandomMove();
+                    }
+                }
+                
+                // Если не нашли ход (маловероятно), берем случайный
+                if (moveIndex === -1) {
+                    moveIndex = findRandomMove();
+                }
+                
+                // Проверяем, не бомба ли это
+                if (moveIndex === bombIndex) {
+                    handleBombExplosion(moveIndex);
+                    return;
+                }
+                
+                makeMove(moveIndex, 'O');
+                playSound(clickSound);
+                checkResult();
+            }
+            
+            // Ход следующего игрока (экстремальный режим)
+            function nextPlayerMove() {
+                if (!gameActive) return;
+                
+                if (currentPlayer === 'X') {
+                    currentPlayer = 'O';
+                    setTimeout(computer1Move, 500);
+                } else if (currentPlayer === 'O') {
+                    currentPlayer = 'Z';
+                    setTimeout(computer2Move, 500);
+                } else {
+                    currentPlayer = 'X';
+                    updateStatus();
+                }
+            }
+            
+            // Ход компьютера 1 (экстремальный режим)
+            function computer1Move() {
+                if (!gameActive || currentPlayer !== 'O') return;
+                
+                let moveIndex = -1;
+                
+                // Логика в зависимости от сложности
+                if (difficulty === 'easy') {
+                    moveIndex = findRandomMove();
+                } else if (difficulty === 'hard') {
+                    // 50% на умный ход, 50% на случайный
+                    if (Math.random() < 0.5) {
+                        moveIndex = findSmartMove('O');
+                    } else {
+                        moveIndex = findRandomMove();
+                    }
+                } else { // impossible
+                    // 80% на умный ход, 20% на случайный
+                    if (Math.random() < 0.8) {
+                        moveIndex = findSmartMove('O');
+                    } else {
+                        moveIndex = findRandomMove();
+                    }
+                }
+                
+                // Если не нашли ход (маловероятно), берем случайный
+                if (moveIndex === -1) {
+                    moveIndex = findRandomMove();
+                }
+                
+                // Проверяем, не бомба ли это
+                if (moveIndex === bombIndex) {
+                    handleBombExplosion(moveIndex);
+                    return;
+                }
+                
+                makeMove(moveIndex, 'O');
+                playSound(clickSound);
+                checkResult();
+            }
+            
+            // Ход компьютера 2 (экстремальный режим)
+            function computer2Move() {
+                if (!gameActive || currentPlayer !== 'Z') return;
+                
+                let moveIndex = -1;
+                
+                // Логика в зависимости от сложности
+                if (difficulty === 'easy') {
+                    moveIndex = findRandomMove();
+                } else if (difficulty === 'hard') {
+                    // 50% на умный ход, 50% на случайный
+                    if (Math.random() < 0.5) {
+                        moveIndex = findSmartMove('Z');
+                    } else {
+                        moveIndex = findRandomMove();
+                    }
+                } else { // impossible
+                    // 80% на умный ход, 20% на случайный
+                    if (Math.random() < 0.8) {
+                        moveIndex = findSmartMove('Z');
+                    } else {
+                        moveIndex = findRandomMove();
+                    }
+                }
+                
+                // Если не нашли ход (маловероятно), берем случайный
+                if (moveIndex === -1) {
+                    moveIndex = findRandomMove();
+                }
+                
+                // Проверяем, не бомба ли это
+                if (moveIndex === bombIndex) {
+                    handleBombExplosion(moveIndex);
+                    return;
+                }
+                
+                makeMove(moveIndex, 'Z');
+                playSound(clickSound);
+                checkResult();
+            }
+            
+            // Найти случайный ход
+            function findRandomMove() {
+                const availableMoves = gameState
+                    .map((cell, index) => cell === '' ? index : -1)
+                    .filter(index => index !== -1);
+                
+                if (availableMoves.length === 0) return -1;
+                
+                return availableMoves[Math.floor(Math.random() * availableMoves.length)];
+            }
+            
+            // Найти умный ход
+            function findSmartMove(player) {
+                // 1. Попытаться выиграть
+                for (let i = 0; i < gameState.length; i++) {
+                    if (gameState[i] !== '') continue;
+                    
+                    gameState[i] = player;
+                    if (checkWin() === player) {
+                        gameState[i] = '';
+                        return i;
+                    }
+                    gameState[i] = '';
+                }
+                
+                // 2. Блокировать противника
+                const opponent = player === 'O' ? 'X' : (player === 'X' ? 'O' : 'X');
+                for (let i = 0; i < gameState.length; i++) {
+                    if (gameState[i] !== '') continue;
+                    
+                    gameState[i] = opponent;
+                    if (checkWin() === opponent) {
+                        gameState[i] = '';
+                        return i;
+                    }
+                    gameState[i] = '';
+                }
+                
+                // 3. Занять центр, если свободен
+                const center = Math.floor(boardSize / 2) * boardSize + Math.floor(boardSize / 2);
+                if (gameState[center] === '') {
+                    return center;
+                }
+                
+                // 4. Занять угол, если свободен
+                const corners = [
+                    0, // левый верхний
+                    boardSize - 1, // правый верхний
+                    (boardSize - 1) * boardSize, // левый нижний
+                    boardSize * boardSize - 1 // правый нижний
+                ];
+                const availableCorners = corners.filter(index => gameState[index] === '');
+                if (availableCorners.length > 0) {
+                    return availableCorners[Math.floor(Math.random() * availableCorners.length)];
+                }
+                
+                // 5. Занять сторону, если свободна
+                const sides = [];
+                for (let i = 1; i < boardSize - 1; i++) {
+                    sides.push(i); // верх
+                    sides.push(i * boardSize); // лево
+                    sides.push((i + 1) * boardSize - 1); // право
+                    sides.push((boardSize - 1) * boardSize + i); // низ
+                }
+                const availableSides = sides.filter(index => gameState[index] === '');
+                if (availableSides.length > 0) {
+                    return availableSides[Math.floor(Math.random() * availableSides.length)];
+                }
+                
+                // 6. Случайный ход
+                return -1;
+            }
+            
+            // Обновить статус игры
+            function updateStatus() {
+                if (!gameActive) return;
+                
+                if (currentPlayer === 'X') {
+                    statusElement.textContent = `${playerName}, ваш ход (X)`;
+                } else if (currentPlayer === 'O') {
+                    statusElement.textContent = 'Ход компьютера 1 (O)...';
+                } else {
+                    statusElement.textContent = 'Ход компьютера 2 (Z)...';
+                }
+            }
+            
+            // Сбросить визуальные эффекты
+            function resetVisualEffects() {
+                humanCrown.style.opacity = '0';
+                computer1Crown.style.opacity = '0';
+                computer2Crown.style.opacity = '0';
+                humanTrash.style.opacity = '0';
+                computer1Trash.style.opacity = '0';
+                computer2Trash.style.opacity = '0';
+                humanAvatar.style.animation = '';
+                computer1Avatar.style.animation = '';
+                computer2Avatar.style.animation = '';
+            }
+            
+            // Сброс игры
+            function resetGame() {
+                initGame();
+            }
+            
+            // Воспроизведение звука с проверкой
+            function playSound(sound) {
+                if (soundEnabled) {
+                    sound.currentTime = 0;
+                    sound.play().catch(e => console.log("Автовоспроизведение заблокировано"));
+                }
+            }
+            
+            // Изменение имени игрока
+            playerNameElement.addEventListener('click', () => {
+                const newName = prompt('Введите ваше имя:', playerName);
+                if (newName && newName.trim() !== '') {
+                    playerName = newName.trim();
+                    playerNameElement.textContent = playerName;
+                    updateStatus();
+                }
+            });
+            
+            // Переключение режима игры
+            modeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    modeButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    gameMode = button.dataset.mode;
+                    
+                    // Показываем/скрываем второго компьютера
+                    if (gameMode === 'extreme') {
+                        computer2Container.classList.remove('hidden');
+                    } else {
+                        computer2Container.classList.add('hidden');
+                    }
+                    
+                    initGame();
+                });
+            });
+            
+            // Изменение сложности
+            difficultyButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    difficultyButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    difficulty = button.dataset.difficulty;
+                });
+            });
+            
+            // Переключение звука
+            soundToggle.addEventListener('click', () => {
+                soundEnabled = !soundEnabled;
+                soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
+                if (soundEnabled) {
+                    clickSound.currentTime = 0;
+                    clickSound.play().catch(e => console.log("Автовоспроизведение заблокировано"));
+                }
+            });
+            
+            // Кнопка сброса
+            resetBtn.addEventListener('click', resetGame);
+            
+            // Разблокировка аудио
+            setTimeout(() => {
+                clickSound.volume = 0.01;
+                clickSound.play().then(() => {
+                    clickSound.pause();
+                    clickSound.currentTime = 0;
+                    clickSound.volume = 1;
+                }).catch(e => console.log("Автовоспроизведение заблокировано"));
+            }, 500);
+            
+            // Инициализация игры
+            initGame();
+        });
+    </script>
+</body>
+</html>
